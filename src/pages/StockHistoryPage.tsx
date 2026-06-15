@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { adminGetStockHistory, getAuthToken, removeAuthToken } from "../api";
+import { adminGetStockHistory, removeAuthToken } from "../api";
 import { TableSkeleton } from "../components/LoadingSkeleton";
 import type { StockHistoryEntry } from "../api";
 
@@ -19,7 +19,7 @@ export default function StockHistoryPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await adminGetStockHistory(getAuthToken());
+      const data = await adminGetStockHistory();
       setHistory(data);
     } catch {
       setError("Failed to load stock history.");

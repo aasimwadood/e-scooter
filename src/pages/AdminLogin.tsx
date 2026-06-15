@@ -114,6 +114,18 @@ export default function AdminLogin() {
               <p><strong>Password:</strong> KohatEbike2024!</p>
             </div>
           </div>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500">
+              Don't have an account?{" "}
+              <Link
+                to="/admin/signup"
+                className="text-emerald-600 hover:text-emerald-700 font-semibold transition-colors"
+              >
+                Sign Up
+              </Link>
+            </p>
+          </div>
         </div>
 
         <div className="text-center mt-6">

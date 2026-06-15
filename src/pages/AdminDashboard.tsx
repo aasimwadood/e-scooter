@@ -6,7 +6,6 @@ import {
   adminAddProduct,
   adminDeleteProduct,
   adminResetData,
-  getAuthToken,
   removeAuthToken,
   getFinancialSummary,
 } from "../api";
@@ -52,7 +51,7 @@ export default function AdminDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const data = await adminGetProducts(getAuthToken());
+      const data = await adminGetProducts();
       setProducts(data);
       setFinances(getFinancialSummary(data));
       const inputs: Record<string, string> = {};
@@ -83,7 +82,7 @@ export default function AdminDashboard() {
     setSuccessMsg(null);
 
     try {
-      await adminUpdateStock(getAuthToken(), productId, newStock);
+      await adminUpdateStock(productId, newStock);
       const productName = products.find((p) => p._id === productId)?.name;
       setSuccessMsg(`Stock updated for ${productName} → ${newStock} units`);
       await loadProducts();
@@ -106,7 +105,7 @@ export default function AdminDashboard() {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
 
-      await adminAddProduct(getAuthToken(), {
+      await adminAddProduct({
         name: newProduct.name,
         slug,
         description: newProduct.description,
@@ -161,7 +160,7 @@ export default function AdminDashboard() {
     setError(null);
     setSuccessMsg(null);
     try {
-      await adminDeleteProduct(getAuthToken(), productId);
+      await adminDeleteProduct(productId);
       setSuccessMsg("Product deleted successfully");
       setDeleteConfirmId(null);
       await loadProducts();
@@ -177,7 +176,7 @@ export default function AdminDashboard() {
     setError(null);
     setSuccessMsg(null);
     try {
-      await adminResetData(getAuthToken());
+      await adminResetData();
       setSuccessMsg("All data cleaned and reset to default state");
       setShowCleanConfirm(false);
       await loadProducts();
