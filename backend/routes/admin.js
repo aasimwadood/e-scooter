@@ -8,6 +8,35 @@ const { authMiddleware, JWT_SECRET } = require("../middleware/auth");
 // Stock history (in-memory for simplicity, could be a model)
 let stockHistory = [];
 
+// POST /api/admin/signup
+router.post("/signup", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email and password are required" });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    const existing = await Admin.findOne({ email });
+    if (existing) {
+      return res.status(409).json({ message: "Email already registered" });
+    }
+
+    const admin = new Admin({ name, email, password });
+    await admin.save();
+
+    const token = jwt.sign({ id: admin._id, email: admin.email }, JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    res.status(201).json({ token });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // POST /api/admin/login
 router.post("/login", async (req, res) => {
   try {

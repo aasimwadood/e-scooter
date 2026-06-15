@@ -3,7 +3,9 @@ const mongoose = require("mongoose");
 const Product = require("./models/Product");
 const Admin = require("./models/Admin");
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/escooter-kohat";
+const MONGO_URI =
+  process.env.MONGO_URI ||
+  "mongodb+srv://aasimwadood_db_user:mYMXdL4dpfY2wk1g@escooter-kohat.iayojxi.mongodb.net/escooter-kohat?retryWrites=true&w=majority&appName=escooter-kohat";
 
 const seedProducts = [
   {
@@ -174,6 +176,7 @@ async function seed() {
 
     // Seed admin
     const admin = new Admin({
+      name: "Admin",
       email: process.env.ADMIN_EMAIL || "admin@escooter-kohat.com",
       password: process.env.ADMIN_PASSWORD || "KohatEbike2024!",
     });
