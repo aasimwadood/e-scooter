@@ -6,6 +6,7 @@ import {
   adminAddProduct,
   adminDeleteProduct,
   adminResetData,
+  adminGetSales,
   removeAuthToken,
   getFinancialSummary,
 } from "../api";
@@ -51,9 +52,9 @@ export default function AdminDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const data = await adminGetProducts();
+      const [data, sales] = await Promise.all([adminGetProducts(), adminGetSales()]);
       setProducts(data);
-      setFinances(getFinancialSummary(data));
+      setFinances(getFinancialSummary(data, sales));
       const inputs: Record<string, string> = {};
       data.forEach((p) => {
         inputs[p._id] = String(p.stock);

@@ -12,7 +12,7 @@ function authMiddleware(req, res, next) {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.admin = decoded;
-    next();
+    next(null);
   } catch {
     return res.status(401).json({ message: "Unauthorized - Invalid token" });
   }

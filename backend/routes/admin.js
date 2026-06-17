@@ -3,10 +3,9 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
 const Product = require("../models/Product");
+const StockHistory = require("../models/StockHistory");
+const Sale = require("../models/Sale");
 const { authMiddleware, JWT_SECRET } = require("../middleware/auth");
-
-// Stock history (in-memory for simplicity, could be a model)
-let stockHistory = [];
 
 // POST /api/admin/signup
 router.post("/signup", async (req, res) => {
@@ -36,7 +35,6 @@ router.post("/signup", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 // POST /api/admin/login
 router.post("/login", async (req, res) => {
   try {
@@ -80,14 +78,13 @@ router.put("/products/:id/stock", authMiddleware, async (req, res) => {
     product.stock = stock;
     await product.save();
 
-    stockHistory.unshift({
-      id: `hist-${Date.now()}`,
-      productId: product._id.toString(),
+    await StockHistory.create({
+      productId: product._id,
       productName: product.name,
       oldStock,
       newStock: stock,
       change,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(),
       unitPrice,
       stockValueChange: change * unitPrice,
     });
@@ -104,14 +101,13 @@ router.post("/products", authMiddleware, async (req, res) => {
     const product = new Product(req.body);
     await product.save();
 
-    stockHistory.unshift({
-      id: `hist-${product._id}-init`,
-      productId: product._id.toString(),
+    await StockHistory.create({
+      productId: product._id,
       productName: product.name,
       oldStock: 0,
       newStock: product.stock,
       change: product.stock,
-      timestamp: product.createdAt.toISOString(),
+      timestamp: product.createdAt,
       unitPrice: product.salePrice || product.price,
       stockValueChange: product.stock * (product.salePrice || product.price),
     });
@@ -128,14 +124,13 @@ router.delete("/products/:id", authMiddleware, async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    stockHistory.unshift({
-      id: `hist-${Date.now()}-del`,
-      productId: product._id.toString(),
+    await StockHistory.create({
+      productId: product._id,
       productName: product.name,
       oldStock: product.stock,
       newStock: 0,
       change: -product.stock,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(),
       unitPrice: product.salePrice || product.price,
       stockValueChange: -(product.stock * (product.salePrice || product.price)),
     });
@@ -147,16 +142,32 @@ router.delete("/products/:id", authMiddleware, async (req, res) => {
   }
 });
 
+// GET /api/admin/sales
+router.get("/sales", authMiddleware, async (req, res) => {
+  try {
+    const salesData = await Sale.find();
+    res.json(salesData);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // GET /api/admin/stock-history
-router.get("/stock-history", authMiddleware, (req, res) => {
-  res.json(stockHistory);
+router.get("/stock-history", authMiddleware, async (req, res) => {
+  try {
+    const history = await StockHistory.find().sort({ timestamp: -1 });
+    res.json(history);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // POST /api/admin/reset - Reset all data
 router.post("/reset", authMiddleware, async (req, res) => {
   try {
     await Product.deleteMany({});
-    stockHistory = [];
+    await StockHistory.deleteMany({});
+    await Sale.deleteMany({});
     res.json({ message: "All data reset" });
   } catch (err) {
     res.status(500).json({ message: err.message });

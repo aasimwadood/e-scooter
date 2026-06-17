@@ -279,6 +279,26 @@ export async function adminDeleteProduct(productId: string): Promise<void> {
   saveMockProducts(products);
 }
 
+export async function adminGetSales(): Promise<{ amount: number; qty: number }[]> {
+  if (await checkBackend()) {
+    const { data } = await api.get("/admin/sales");
+    return data;
+  }
+  await delay(200);
+  return [
+    { amount: 1899, qty: 1 },
+    { amount: 1199, qty: 1 },
+    { amount: 5598, qty: 2 },
+    { amount: 1799, qty: 1 },
+    { amount: 2499, qty: 1 },
+    { amount: 2398, qty: 2 },
+    { amount: 1899, qty: 1 },
+    { amount: 2799, qty: 1 },
+    { amount: 1799, qty: 1 },
+    { amount: 1499, qty: 1 },
+  ];
+}
+
 export async function adminGetStockHistory(): Promise<StockHistoryEntry[]> {
   if (await checkBackend()) {
     const { data } = await api.get("/admin/stock-history");
@@ -299,21 +319,10 @@ export async function adminResetData(): Promise<void> {
 
 // ─── Financial Data ──────────────────────────────────────────
 
-const COST_RATIO = 0.55;
-const salesData = [
-  { amount: 1899, qty: 1 },
-  { amount: 1199, qty: 1 },
-  { amount: 5598, qty: 2 },
-  { amount: 1799, qty: 1 },
-  { amount: 2499, qty: 1 },
-  { amount: 2398, qty: 2 },
-  { amount: 1899, qty: 1 },
-  { amount: 2799, qty: 1 },
-  { amount: 1799, qty: 1 },
-  { amount: 1499, qty: 1 },
-];
-
-export function getFinancialSummary(products: Product[]): FinancialSummary {
+export function getFinancialSummary(
+  products: Product[],
+  salesData: { amount: number; qty: number }[]
+): FinancialSummary {
   const totalMoney = salesData.reduce((s, d) => s + d.amount, 0);
   const totalStockCost = products.reduce((s, p) => s + p.stock * p.price * COST_RATIO, 0);
   const totalUnitsSold = salesData.reduce((s, d) => s + d.qty, 0);
