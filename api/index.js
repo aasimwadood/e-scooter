@@ -27,7 +27,9 @@ const MONGO_URI =
 const connectDB = async () => {
   try {
     if (mongoose.connection.readyState >= 1) return;
-    await mongoose.connect(MONGO_URI);
+    await mongoose.connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 5000,
+    });
     console.log("MongoDB connected successfully");
   } catch (error) {
     console.error("MongoDB connection error:", error);
@@ -43,8 +45,8 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Export as serverless function
-module.exports = async (req, res) => {
-  await connectDB();
-  return app(req, res);
-};
+// Execute connection globally (Mongoose buffers queries)
+connectDB();
+
+// Export as Express app
+module.exports = app;
