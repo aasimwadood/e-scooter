@@ -1,4 +1,3 @@
-const serverless = require("serverless-http");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -47,5 +46,5 @@ app.get("/api/health", (req, res) => {
 // Export as serverless function
 module.exports = async (req, res) => {
   await connectDB();
-  return serverless(app)(req, res);
+  return app(req, res);
 };
