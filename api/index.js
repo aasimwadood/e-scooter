@@ -21,11 +21,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection (Lazy load on each request for serverless)
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI =
+  process.env.MONGO_URI ||
+  "mongodb+srv://aasimwadood_db_user:mYMXdL4dpfY2wk1g@escooter-kohat.iayojxi.mongodb.net/escooter-kohat?retryWrites=true&w=majority&appName=escooter-kohat";
 
 const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) return;
-  await mongoose.connect(MONGO_URI);
+  try {
+    if (mongoose.connection.readyState >= 1) return;
+    await mongoose.connect(MONGO_URI);
+    console.log("MongoDB connected successfully");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+  }
 };
 
 // API Routes
