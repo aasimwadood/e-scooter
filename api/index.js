@@ -36,6 +36,13 @@ const connectDB = async () => {
   }
 };
 
+// CRITICAL for Vercel: Database Connection Middleware
+// Vercel freezes functions between requests. You MUST await the DB connection inside the request.
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+
 // API Routes
 app.use("/api/products", productRoutes);
 app.use("/api/admin", adminRoutes);
@@ -45,8 +52,7 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Execute connection globally (Mongoose buffers queries)
-connectDB();
+// Export as Express app
 
 // Export as Express app
 module.exports = app;

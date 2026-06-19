@@ -60,7 +60,8 @@ export default function AdminDashboard() {
         inputs[p._id] = String(p.stock);
       });
       setStockInputs(inputs);
-    } catch {
+    } catch (err: any) {
+      console.error("Load products error:", err.response?.data || err.message);
       setError("Failed to load products. You may need to login again.");
     } finally {
       setLoading(false);
