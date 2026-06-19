@@ -323,6 +323,7 @@ export function getFinancialSummary(
   products: Product[],
   salesData: { amount: number; qty: number }[]
 ): FinancialSummary {
+  const COST_RATIO = 0.55;
   const totalMoney = salesData.reduce((s, d) => s + d.amount, 0);
   const totalStockCost = products.reduce((s, p) => s + p.stock * p.price * COST_RATIO, 0);
   const totalUnitsSold = salesData.reduce((s, d) => s + d.qty, 0);
